@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+
+
+
 
 function App() {
+
+  const [initialData, setInitialData] = useState([]);
+  const [countries, setCountries] = useState([]);
+
+  useEffect(() => {
+    async function countriesData() {
+      const apiData = await axios.get('https://restcountries.eu/rest/v2/all');
+
+      const data = apiData.data.map(country => ({ name: country.name, initials: country.alpha2code }));
+
+      setCountries(data);
+      setInitialData(data);
+    }
+    countriesData();
+  }, []);
+
+  function handleSearchChange(event) {
+    const newData = initialData.filter(country => country.name.toLowerCase().match(event.target.value.toLowerCase()))
+
+    setCountries(newData);
+  }
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <input type="text" onChange={(e) => handleSearchChange(e)}/>
+      {countries.map(
+        country => (<p key={country.initials}>{country.name}</p>)
+      )}
+    </>
   );
 }
 
